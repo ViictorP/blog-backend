@@ -1,6 +1,8 @@
 package com.victor.backend.blogbackend.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
@@ -12,9 +14,13 @@ public class Post {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @NotNull
+    @NotBlank
     @Column(name = "title", nullable = false)
     private String title;
 
+    @NotNull
+    @NotBlank
     @Column(name = "content", nullable = false, length = 5000)
     private String content;
 

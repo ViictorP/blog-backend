@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "locar_user")
+@Table(name = "local_user")
 public class LocalUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -5,7 +5,6 @@ import com.victor.backend.blogbackend.model.LocalUser;
 import com.victor.backend.blogbackend.model.Post;
 import com.victor.backend.blogbackend.model.dao.LocalUserDAO;
 import com.victor.backend.blogbackend.model.dao.PostDAO;
-import org.hibernate.grammars.hql.HqlParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,19 +20,19 @@ public class PostService {
     @Autowired
     private LocalUserDAO localUserDAO;
 
-    public Post createPost(PostBody postBody) {
+    public Post createPost(PostBody postBody) throws Exception {
         Optional<LocalUser> opUser = localUserDAO.findByUsername(postBody.getUser());
-
-        if (opUser.isPresent()) {
-            Post post = new Post();
-            post.setTitle(postBody.getTitle());
-            post.setContent(postBody.getContent());
-            LocalUser user = opUser.get();
-            post.setLocarUser(user);
-            post.setLikes(0);
-            post.setTime(LocalDateTime.now());
-            return postDAO.save(post);
+        if (opUser.isEmpty()) {
+            throw new Exception();
         }
-        return null;
+
+        Post post = new Post();
+        post.setTitle(postBody.getTitle());
+        post.setContent(postBody.getContent());
+        LocalUser user = opUser.get();
+        post.setLocarUser(user);
+        post.setLikes(0);
+        post.setTime(LocalDateTime.now());
+        return postDAO.save(post);
     }
 }
