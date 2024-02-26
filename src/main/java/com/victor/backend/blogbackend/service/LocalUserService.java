@@ -13,6 +13,9 @@ public class LocalUserService {
     @Autowired
     private LocalUserDAO localUserDAO;
 
+    @Autowired
+    private EncryptionService encryptionService;
+
     public LocalUser registerUser(RegistrationBody registerBody) throws UserAlreadyExistsException {
 
         if (localUserDAO.findByEmail(registerBody.getEmail()).isPresent()
@@ -23,7 +26,7 @@ public class LocalUserService {
         LocalUser user = new LocalUser();
         user.setUsername(registerBody.getUsername());
         user.setEmail(registerBody.getEmail());
-        user.setPassword(registerBody.getPassword());
+        user.setPassword(encryptionService.encryptPassword(registerBody.getPassword()));
         return localUserDAO.save(user);
     }
 }
