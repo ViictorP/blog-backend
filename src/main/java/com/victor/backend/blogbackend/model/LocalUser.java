@@ -24,6 +24,7 @@ public class LocalUser {
     @Column(name = "email", nullable = false, unique = true, length = 320)
     private String email;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "locarUser", orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 
