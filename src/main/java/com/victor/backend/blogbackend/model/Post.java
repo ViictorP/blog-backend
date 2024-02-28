@@ -1,10 +1,15 @@
 package com.victor.backend.blogbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "post")
@@ -29,10 +34,22 @@ public class Post {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "locar_user_id", nullable = false)
-    private LocalUser locarUser;
+    private LocalUser author;
 
     @Column(name = "time", nullable = false)
     private LocalDateTime time;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "post", orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
 
     public LocalDateTime getTime() {
         return time;
@@ -42,12 +59,12 @@ public class Post {
         this.time = time;
     }
 
-    public LocalUser getLocarUser() {
-        return locarUser;
+    public LocalUser getAuthor() {
+        return author;
     }
 
-    public void setLocarUser(LocalUser locarUser) {
-        this.locarUser = locarUser;
+    public void setAuthor(LocalUser author) {
+        this.author = author;
     }
 
     public int getLikes() {
