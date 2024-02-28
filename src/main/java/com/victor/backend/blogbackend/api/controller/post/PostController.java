@@ -30,8 +30,8 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         try {
-            postService.createPost(postBody, authorizationHeader);
-            return ResponseEntity.ok().build();
+            Post post = postService.createPost(postBody, authorizationHeader);
+            return ResponseEntity.ok(post);
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

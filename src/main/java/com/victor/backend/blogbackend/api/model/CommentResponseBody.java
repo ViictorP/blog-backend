@@ -1,25 +1,26 @@
 package com.victor.backend.blogbackend.api.model;
 
-import com.victor.backend.blogbackend.model.Post;
+import com.victor.backend.blogbackend.model.Comment;
 
 import java.time.LocalDateTime;
 
-public class PostResponseBody {
+public class CommentResponseBody {
 
     private Long id;
-    private String title;
     private String content;
     private int likes;
-    private String author;
     private LocalDateTime time;
+    private String author;
 
-    public PostResponseBody(Post post) {
-        id = post.getId();
-        title = post.getTitle();
-        content = post.getContent();
-        likes = post.getLikes();
-        author = post.getAuthor().getUsername();
-        time = post.getTime();
+    public CommentResponseBody() {
+    }
+
+    public CommentResponseBody(Comment comment) {
+        id = comment.getId();
+        content = comment.getContent();
+        likes = comment.getLikes();
+        time = comment.getTime();
+        author = comment.getAuthor().getUsername();
     }
 
     public Long getId() {
@@ -28,17 +29,6 @@ public class PostResponseBody {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public PostResponseBody() {
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getContent() {
@@ -57,19 +47,19 @@ public class PostResponseBody {
         this.likes = likes;
     }
 
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
     public LocalDateTime getTime() {
         return time;
     }
 
     public void setTime(LocalDateTime time) {
         this.time = time;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
     }
 }
