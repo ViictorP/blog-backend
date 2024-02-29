@@ -19,7 +19,7 @@ public class WebSecurityConfig {
         http.addFilterBefore(jwtRequestFilter, AuthorizationFilter.class);
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/register", "/auth/login", "/post/all", "/comment/show/{postId}",
-                        "/user").permitAll()
+                        "/user/profile", "/user/posts", "/user/comments").permitAll()
                 .anyRequest().authenticated());
         return http.build();
     }

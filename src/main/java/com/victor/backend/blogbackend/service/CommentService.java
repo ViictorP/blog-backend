@@ -2,8 +2,11 @@ package com.victor.backend.blogbackend.service;
 
 import com.victor.backend.blogbackend.api.model.CommentBody;
 import com.victor.backend.blogbackend.api.model.CommentResponseBody;
+import com.victor.backend.blogbackend.api.model.PostResponseBody;
 import com.victor.backend.blogbackend.exception.PostDontExistsException;
 import com.victor.backend.blogbackend.exception.UserDontExistsException;
+import com.victor.backend.blogbackend.exception.UserDontHaveCommentYetException;
+import com.victor.backend.blogbackend.exception.UserDontHavePostYetException;
 import com.victor.backend.blogbackend.model.Comment;
 import com.victor.backend.blogbackend.model.LocalUser;
 import com.victor.backend.blogbackend.model.Post;
@@ -32,6 +35,7 @@ public class CommentService {
     @Autowired
     private PostDAO postDAO;
 
+
     public CommentResponseBody makeComment(CommentBody commentBody, int postId, String token) throws PostDontExistsException, UserDontExistsException {
         String username = jwt.getUsername(token);
         Optional<LocalUser> opUser = localUserDAO.findByUsername(username);
@@ -57,5 +61,15 @@ public class CommentService {
     public List<CommentResponseBody> postComments(int postId) {
         List<Comment> commentList = commentDAO.findAll();
         return commentList.stream().map(x -> new CommentResponseBody(x)).toList();
+    }
+
+    public List<CommentResponseBody> findUsersComments(String username) throws UserDontHaveCommentYetException {
+        Optional<List<Comment>> opCommentList = commentDAO.findByAuthor_Username(username);
+        if (opCommentList.isEmpty()) {
+            throw new UserDontHaveCommentYetException();
+        }
+
+        List<Comment> posts = opCommentList.get();
+        return posts.stream().map(x -> new CommentResponseBody(x)).toList();
     }
 }

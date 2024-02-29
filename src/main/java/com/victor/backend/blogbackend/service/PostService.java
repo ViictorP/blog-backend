@@ -3,6 +3,7 @@ package com.victor.backend.blogbackend.service;
 import com.victor.backend.blogbackend.api.model.PostBody;
 import com.victor.backend.blogbackend.api.model.PostResponseBody;
 import com.victor.backend.blogbackend.exception.UserDontExistsException;
+import com.victor.backend.blogbackend.exception.UserDontHavePostYetException;
 import com.victor.backend.blogbackend.model.LocalUser;
 import com.victor.backend.blogbackend.model.Post;
 import com.victor.backend.blogbackend.model.dao.LocalUserDAO;
@@ -46,5 +47,15 @@ public class PostService {
     public List<PostResponseBody> allPosts() {
         List<Post> postList = postDAO.findAll();
         return postList.stream().map(x -> new PostResponseBody(x)).toList();
+    }
+
+    public List<PostResponseBody> findUsersPosts(String username) throws UserDontHavePostYetException {
+        Optional<List<Post>> opPostList = postDAO.findByAuthor_Username(username);
+        if (opPostList.isEmpty()) {
+            throw new UserDontHavePostYetException();
+        }
+
+        List<Post> posts = opPostList.get();
+        return posts.stream().map(x -> new PostResponseBody(x)).toList();
     }
 }
