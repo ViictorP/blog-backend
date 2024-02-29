@@ -3,10 +3,9 @@ package com.victor.backend.blogbackend.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "local_user")
@@ -33,6 +32,28 @@ public class LocalUser {
     @JsonIgnore
     @OneToMany(mappedBy = "author", orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
+
+    @Column(name = "bio", length = 200)
+    private String bio;
+
+    @Column(name = "registration_date", nullable = false)
+    private LocalDateTime registrationDate;
+
+    public LocalDateTime getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(LocalDateTime registrationDate) {
+        this.registrationDate = registrationDate;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
 
     public List<Comment> getComments() {
         return comments;

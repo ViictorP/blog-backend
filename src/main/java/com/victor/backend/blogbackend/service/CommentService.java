@@ -2,6 +2,8 @@ package com.victor.backend.blogbackend.service;
 
 import com.victor.backend.blogbackend.api.model.CommentBody;
 import com.victor.backend.blogbackend.api.model.CommentResponseBody;
+import com.victor.backend.blogbackend.exception.PostDontExistsException;
+import com.victor.backend.blogbackend.exception.UserDontExistsException;
 import com.victor.backend.blogbackend.model.Comment;
 import com.victor.backend.blogbackend.model.LocalUser;
 import com.victor.backend.blogbackend.model.Post;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,12 +32,15 @@ public class CommentService {
     @Autowired
     private PostDAO postDAO;
 
-    public CommentResponseBody makeComment(CommentBody commentBody, int postId, String token) throws Exception {
+    public CommentResponseBody makeComment(CommentBody commentBody, int postId, String token) throws PostDontExistsException, UserDontExistsException {
         String username = jwt.getUsername(token);
         Optional<LocalUser> opUser = localUserDAO.findByUsername(username);
         Optional<Post> opPost = postDAO.findById((long) postId);
-        if (opUser.isEmpty() || opPost.isEmpty()) {
-            throw new Exception();
+        if (opPost.isEmpty()) {
+            throw new PostDontExistsException();
+        }
+        if (opUser.isEmpty()) {
+            throw new UserDontExistsException();
         }
 
         LocalUser user = opUser.get();
@@ -46,5 +52,10 @@ public class CommentService {
         comment.setTime(LocalDateTime.now());
         comment.setLikes(0);
         return new CommentResponseBody(commentDAO.save(comment));
+    }
+
+    public List<CommentResponseBody> postComments(int postId) {
+        List<Comment> commentList = commentDAO.findAll();
+        return commentList.stream().map(x -> new CommentResponseBody(x)).toList();
     }
 }

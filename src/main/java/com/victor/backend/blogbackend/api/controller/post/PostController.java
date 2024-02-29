@@ -2,7 +2,7 @@ package com.victor.backend.blogbackend.api.controller.post;
 
 import com.victor.backend.blogbackend.api.model.PostBody;
 import com.victor.backend.blogbackend.api.model.PostResponseBody;
-import com.victor.backend.blogbackend.exception.UserAlreadyExistsException;
+import com.victor.backend.blogbackend.exception.UserDontExistsException;
 import com.victor.backend.blogbackend.model.Post;
 import com.victor.backend.blogbackend.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,7 +32,7 @@ public class PostController {
         try {
             Post post = postService.createPost(postBody, authorizationHeader);
             return ResponseEntity.ok(post);
-        } catch (Exception ex) {
+        } catch (UserDontExistsException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

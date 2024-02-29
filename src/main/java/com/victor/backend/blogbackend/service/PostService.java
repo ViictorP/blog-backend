@@ -2,6 +2,7 @@ package com.victor.backend.blogbackend.service;
 
 import com.victor.backend.blogbackend.api.model.PostBody;
 import com.victor.backend.blogbackend.api.model.PostResponseBody;
+import com.victor.backend.blogbackend.exception.UserDontExistsException;
 import com.victor.backend.blogbackend.model.LocalUser;
 import com.victor.backend.blogbackend.model.Post;
 import com.victor.backend.blogbackend.model.dao.LocalUserDAO;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,11 +26,11 @@ public class PostService {
     @Autowired
     private JWTService jwt;
 
-    public Post createPost(PostBody postBody, String token) throws Exception {
+    public Post createPost(PostBody postBody, String token) throws UserDontExistsException {
         String username = jwt.getUsername(token);
         Optional<LocalUser> opUser = localUserDAO.findByUsername(username);
         if (opUser.isEmpty()) {
-            throw new Exception();
+            throw new UserDontExistsException();
         }
 
         Post post = new Post();
