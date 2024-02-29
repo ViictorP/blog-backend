@@ -18,7 +18,7 @@ public class WebSecurityConfig {
         http.csrf(csrf -> csrf.disable()).cors(cors -> cors.disable());
         http.addFilterBefore(jwtRequestFilter, AuthorizationFilter.class);
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/register", "/auth/login", "/post/all", "/comment/show/{postId}",
+                .requestMatchers("/auth/register", "/auth/login", "/auth/verify", "/post/all", "/comment/show/{postId}",
                         "/user/profile", "/user/posts", "/user/comments").permitAll()
                 .anyRequest().authenticated());
         return http.build();

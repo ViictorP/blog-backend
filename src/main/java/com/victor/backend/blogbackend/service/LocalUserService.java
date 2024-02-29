@@ -3,14 +3,21 @@ package com.victor.backend.blogbackend.service;
 import com.victor.backend.blogbackend.api.model.LoginBody;
 import com.victor.backend.blogbackend.api.model.RegistrationBody;
 import com.victor.backend.blogbackend.api.model.UserBody;
+import com.victor.backend.blogbackend.exception.EmailFailureException;
 import com.victor.backend.blogbackend.exception.UserAlreadyExistsException;
 import com.victor.backend.blogbackend.exception.UserDontExistsException;
+import com.victor.backend.blogbackend.exception.UserNotVerifiedException;
 import com.victor.backend.blogbackend.model.LocalUser;
+import com.victor.backend.blogbackend.model.VerificationToken;
 import com.victor.backend.blogbackend.model.dao.LocalUserDAO;
+import com.victor.backend.blogbackend.model.dao.VerificationTokenDAO;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,9 +32,15 @@ public class LocalUserService {
     @Autowired
     private JWTService jwtService;
 
-    public LocalUser registerUser(RegistrationBody registerBody) throws UserAlreadyExistsException {
-        if (localUserDAO.findByEmail(registerBody.getEmail()).isPresent()
-                || localUserDAO.findByUsername(registerBody.getUsername()).isPresent()) {
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private VerificationTokenDAO verificationTokenDAO;
+
+    public LocalUser registerUser(RegistrationBody registerBody) throws UserAlreadyExistsException, EmailFailureException {
+        if (localUserDAO.findByEmailIgnoreCase(registerBody.getEmail()).isPresent()
+                || localUserDAO.findByUsernameIgnoreCase(registerBody.getUsername()).isPresent()) {
             throw new UserAlreadyExistsException();
         }
 
@@ -35,26 +48,67 @@ public class LocalUserService {
         user.setUsername(registerBody.getUsername());
         user.setEmail(registerBody.getEmail());
         user.setPassword(encryptionService.encryptPassword(registerBody.getPassword()));
+
+        VerificationToken verificationToken = createVerificationToken(user);
+        emailService.sendVerificationEmail(verificationToken);
         user.setRegistrationDate(LocalDateTime.now());
         return localUserDAO.save(user);
     }
 
-    public String loginUser(LoginBody loginBody) {
-        Optional<LocalUser> opUser = localUserDAO.findByUsername(loginBody.getUsername());
+    public String loginUser(LoginBody loginBody) throws UserNotVerifiedException, EmailFailureException {
+        Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(loginBody.getUsername());
         if (opUser.isPresent()) {
             LocalUser user = opUser.get();
             if (encryptionService.verifyPassword(loginBody.getPassword(), user.getPassword())) {
-                return jwtService.generateJWT(user);
+                if (user.isEmailVerified()) {
+                    return jwtService.generateJWT(user);
+                } else {
+                    List<VerificationToken> verificationTokens = user.getVerificationTokens();
+                    boolean resend = verificationTokens.size() == 0 ||
+                            verificationTokens.get(0).getCreatedTimestamp()
+                                    .before(new Timestamp(System.currentTimeMillis() - (60 * 60 * 1000)));
+                    if (resend) {
+                        VerificationToken verificationToken = createVerificationToken(user);
+                        verificationTokenDAO.save(verificationToken);
+                        emailService.sendVerificationEmail(verificationToken);
+                    }
+                    throw new UserNotVerifiedException(resend);
+                }
             }
         }
         return null;
     }
 
+    @Transactional
+    public boolean verifyUser(String token) {
+        Optional<VerificationToken> opToken = verificationTokenDAO.findByToken(token);
+        if (opToken.isPresent()) {
+            VerificationToken verificationToken = opToken.get();
+            LocalUser user = verificationToken.getUser();
+            if (!user.isEmailVerified()) {
+                user.setEmailVerified(true);
+                localUserDAO.save(user);
+                verificationTokenDAO.deleteByUser(user);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public UserBody findUser(String username) throws UserDontExistsException {
-        Optional<LocalUser> opUser = localUserDAO.findByUsername(username);
+        Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
         if (opUser.isEmpty()) {
             throw new UserDontExistsException();
         }
         return new UserBody(opUser.get());
+    }
+
+    private VerificationToken createVerificationToken(LocalUser user) {
+        VerificationToken verificationToken = new VerificationToken();
+        verificationToken.setToken(jwtService.generateVerificationJWT(user));
+        verificationToken.setCreatedTimestamp(new Timestamp(System.currentTimeMillis()));
+        verificationToken.setUser(user);
+        user.getVerificationTokens().add(verificationToken);
+        return verificationToken;
     }
 }

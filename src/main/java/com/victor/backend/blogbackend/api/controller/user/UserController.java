@@ -6,7 +6,6 @@ import com.victor.backend.blogbackend.api.model.UserBody;
 import com.victor.backend.blogbackend.exception.UserDontExistsException;
 import com.victor.backend.blogbackend.exception.UserDontHaveCommentYetException;
 import com.victor.backend.blogbackend.exception.UserDontHavePostYetException;
-import com.victor.backend.blogbackend.model.dao.CommentDAO;
 import com.victor.backend.blogbackend.service.CommentService;
 import com.victor.backend.blogbackend.service.LocalUserService;
 import com.victor.backend.blogbackend.service.PostService;

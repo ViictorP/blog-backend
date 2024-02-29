@@ -29,7 +29,7 @@ public class PostService {
 
     public Post createPost(PostBody postBody, String token) throws UserDontExistsException {
         String username = jwt.getUsername(token);
-        Optional<LocalUser> opUser = localUserDAO.findByUsername(username);
+        Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
         if (opUser.isEmpty()) {
             throw new UserDontExistsException();
         }
