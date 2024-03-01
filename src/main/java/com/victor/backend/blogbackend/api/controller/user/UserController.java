@@ -3,7 +3,7 @@ package com.victor.backend.blogbackend.api.controller.user;
 import com.victor.backend.blogbackend.api.model.CommentResponseBody;
 import com.victor.backend.blogbackend.api.model.PostResponseBody;
 import com.victor.backend.blogbackend.api.model.UserBody;
-import com.victor.backend.blogbackend.exception.UserDontExistsException;
+import com.victor.backend.blogbackend.exception.UserNotFoundException;
 import com.victor.backend.blogbackend.exception.UserDontHaveCommentYetException;
 import com.victor.backend.blogbackend.exception.UserDontHavePostYetException;
 import com.victor.backend.blogbackend.service.CommentService;
@@ -36,7 +36,7 @@ public class UserController {
         try {
             UserBody user = localUserService.findUser(username);
             return ResponseEntity.ok(user);
-        } catch (UserDontExistsException e) {
+        } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }

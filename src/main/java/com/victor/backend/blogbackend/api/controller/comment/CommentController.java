@@ -2,8 +2,8 @@ package com.victor.backend.blogbackend.api.controller.comment;
 
 import com.victor.backend.blogbackend.api.model.CommentBody;
 import com.victor.backend.blogbackend.api.model.CommentResponseBody;
-import com.victor.backend.blogbackend.exception.PostDontExistsException;
-import com.victor.backend.blogbackend.exception.UserDontExistsException;
+import com.victor.backend.blogbackend.exception.PostNotFoundException;
+import com.victor.backend.blogbackend.exception.UserNotFoundException;
 import com.victor.backend.blogbackend.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -33,7 +33,7 @@ public class CommentController {
         try {
             CommentResponseBody comment = commentService.makeComment(commentBody, postId, authorizationHeader);
             return ResponseEntity.ok(comment);
-        } catch (PostDontExistsException | UserDontExistsException ex) {
+        } catch (PostNotFoundException | UserNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }

@@ -2,8 +2,10 @@ package com.victor.backend.blogbackend.api.controller.auth;
 
 import com.victor.backend.blogbackend.api.model.LoginBody;
 import com.victor.backend.blogbackend.api.model.LoginResponseBody;
+import com.victor.backend.blogbackend.api.model.PasswordResetBody;
 import com.victor.backend.blogbackend.api.model.RegistrationBody;
 import com.victor.backend.blogbackend.exception.EmailFailureException;
+import com.victor.backend.blogbackend.exception.EmailNotFoundException;
 import com.victor.backend.blogbackend.exception.UserAlreadyExistsException;
 import com.victor.backend.blogbackend.exception.UserNotVerifiedException;
 import com.victor.backend.blogbackend.model.LocalUser;
@@ -68,6 +70,24 @@ public class AuthenticationController {
         } else {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
+    }
+
+    @PostMapping("/forgot")
+    public ResponseEntity forgotPassword(@RequestParam String email) {
+        try {
+            localUserService.forgotPassword(email);
+            return ResponseEntity.ok().build();
+        } catch (EmailNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (EmailFailureException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/reset")
+    public ResponseEntity resetPassword(@Valid @RequestBody PasswordResetBody body) {
+        localUserService.resetPassword(body);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/me")

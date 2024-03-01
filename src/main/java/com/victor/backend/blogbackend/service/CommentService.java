@@ -2,8 +2,8 @@ package com.victor.backend.blogbackend.service;
 
 import com.victor.backend.blogbackend.api.model.CommentBody;
 import com.victor.backend.blogbackend.api.model.CommentResponseBody;
-import com.victor.backend.blogbackend.exception.PostDontExistsException;
-import com.victor.backend.blogbackend.exception.UserDontExistsException;
+import com.victor.backend.blogbackend.exception.PostNotFoundException;
+import com.victor.backend.blogbackend.exception.UserNotFoundException;
 import com.victor.backend.blogbackend.exception.UserDontHaveCommentYetException;
 import com.victor.backend.blogbackend.model.Comment;
 import com.victor.backend.blogbackend.model.LocalUser;
@@ -34,15 +34,15 @@ public class CommentService {
     private PostDAO postDAO;
 
 
-    public CommentResponseBody makeComment(CommentBody commentBody, int postId, String token) throws PostDontExistsException, UserDontExistsException {
+    public CommentResponseBody makeComment(CommentBody commentBody, int postId, String token) throws PostNotFoundException, UserNotFoundException {
         String username = jwt.getUsername(token);
         Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
         Optional<Post> opPost = postDAO.findById((long) postId);
         if (opPost.isEmpty()) {
-            throw new PostDontExistsException();
+            throw new PostNotFoundException();
         }
         if (opUser.isEmpty()) {
-            throw new UserDontExistsException();
+            throw new UserNotFoundException();
         }
 
         LocalUser user = opUser.get();

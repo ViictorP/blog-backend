@@ -2,7 +2,7 @@ package com.victor.backend.blogbackend.service;
 
 import com.victor.backend.blogbackend.api.model.PostBody;
 import com.victor.backend.blogbackend.api.model.PostResponseBody;
-import com.victor.backend.blogbackend.exception.UserDontExistsException;
+import com.victor.backend.blogbackend.exception.UserNotFoundException;
 import com.victor.backend.blogbackend.exception.UserDontHavePostYetException;
 import com.victor.backend.blogbackend.model.LocalUser;
 import com.victor.backend.blogbackend.model.Post;
@@ -27,11 +27,11 @@ public class PostService {
     @Autowired
     private JWTService jwt;
 
-    public Post createPost(PostBody postBody, String token) throws UserDontExistsException {
+    public Post createPost(PostBody postBody, String token) throws UserNotFoundException {
         String username = jwt.getUsername(token);
         Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
         if (opUser.isEmpty()) {
-            throw new UserDontExistsException();
+            throw new UserNotFoundException();
         }
 
         Post post = new Post();

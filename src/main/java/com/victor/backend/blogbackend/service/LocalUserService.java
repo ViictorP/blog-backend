@@ -1,12 +1,10 @@
 package com.victor.backend.blogbackend.service;
 
 import com.victor.backend.blogbackend.api.model.LoginBody;
+import com.victor.backend.blogbackend.api.model.PasswordResetBody;
 import com.victor.backend.blogbackend.api.model.RegistrationBody;
 import com.victor.backend.blogbackend.api.model.UserBody;
-import com.victor.backend.blogbackend.exception.EmailFailureException;
-import com.victor.backend.blogbackend.exception.UserAlreadyExistsException;
-import com.victor.backend.blogbackend.exception.UserDontExistsException;
-import com.victor.backend.blogbackend.exception.UserNotVerifiedException;
+import com.victor.backend.blogbackend.exception.*;
 import com.victor.backend.blogbackend.model.LocalUser;
 import com.victor.backend.blogbackend.model.VerificationToken;
 import com.victor.backend.blogbackend.model.dao.LocalUserDAO;
@@ -95,12 +93,33 @@ public class LocalUserService {
         return false;
     }
 
-    public UserBody findUser(String username) throws UserDontExistsException {
+    public UserBody findUser(String username) throws UserNotFoundException {
         Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
         if (opUser.isEmpty()) {
-            throw new UserDontExistsException();
+            throw new UserNotFoundException();
         }
         return new UserBody(opUser.get());
+    }
+
+    public void forgotPassword(String email) throws EmailFailureException, EmailNotFoundException {
+        Optional<LocalUser> opUser = localUserDAO.findByEmailIgnoreCase(email);
+        if (opUser.isPresent()) {
+            LocalUser user = opUser.get();
+            String token = jwtService.generateResetPassordJWT(user);
+            emailService.sendPasswordResetEamil(user, token);
+        } else {
+            throw new EmailNotFoundException();
+        }
+    }
+
+    public void resetPassword(PasswordResetBody body) {
+        String email = jwtService.getResetPasswordEmail(body.getToken());
+        Optional<LocalUser> opUser = localUserDAO.findByEmailIgnoreCase(email);
+        if (opUser.isPresent()) {
+            LocalUser user = opUser.get();
+            user.setPassword(encryptionService.encryptPassword(body.getPassword()));
+            localUserDAO.save(user);
+        }
     }
 
     private VerificationToken createVerificationToken(LocalUser user) {
