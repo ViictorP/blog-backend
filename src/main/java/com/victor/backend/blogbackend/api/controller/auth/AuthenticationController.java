@@ -88,7 +88,7 @@ public class AuthenticationController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/edit")
+    @PostMapping("/edit/username")
     public ResponseEntity<ChangeUsernameResponseBody> editUsername(@Valid @RequestBody ChangeUsernameBody changeUsernameBody, HttpServletRequest request) {
         ChangeUsernameResponseBody changeUsername = localUserService.editUsername(changeUsernameBody, request);
         if (changeUsername != null) {
@@ -96,6 +96,13 @@ public class AuthenticationController {
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
+
+    @PostMapping("/edit/biography")
+    public ResponseEntity<BiographyBody> editBio(@Valid @RequestBody BiographyBody bio, HttpServletRequest request) {
+        BiographyBody biographyBody = localUserService.editBio(bio, request);
+        return ResponseEntity.ok(biographyBody);
+    }
+
 
     @GetMapping("/me")
     public LocalUser getLoggedInUserProfile(@AuthenticationPrincipal LocalUser user) {

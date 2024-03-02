@@ -33,8 +33,8 @@ public class LocalUser {
     @OneToMany(mappedBy = "author", orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
-    @Column(name = "bio", length = 200)
-    private String bio;
+    @Column(name = "biography", length = 200)
+    private String biography;
 
     @Column(name = "registration_date", nullable = false)
     private LocalDateTime registrationDate;
@@ -71,12 +71,12 @@ public class LocalUser {
         this.registrationDate = registrationDate;
     }
 
-    public String getBio() {
-        return bio;
+    public String getBiography() {
+        return biography;
     }
 
-    public void setBio(String bio) {
-        this.bio = bio;
+    public void setBiography(String biography) {
+        this.biography = biography;
     }
 
     public List<Comment> getComments() {

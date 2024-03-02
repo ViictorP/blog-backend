@@ -122,10 +122,8 @@ public class LocalUserService {
     }
 
     public ChangeUsernameResponseBody editUsername(ChangeUsernameBody changeUsernameBody, HttpServletRequest request) {
-        String tokenHeader = request.getHeader("Authorization");
-        String token = tokenHeader.substring(7);
+        String username = getUsernameFromToken(request);
 
-        String username = jwtService.getUsername(token);
         Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
         if (opUser.isPresent()) {
             LocalUser user = opUser.get();
@@ -141,6 +139,19 @@ public class LocalUserService {
         return null;
     }
 
+    public BiographyBody editBio(BiographyBody bio, HttpServletRequest request) {
+        String username = getUsernameFromToken(request);
+        Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
+        if (opUser.isPresent()) {
+            LocalUser user = opUser.get();
+
+            user.setBiography(bio.getBiography());
+            localUserDAO.save(user);
+            return new BiographyBody(user.getBiography());
+        }
+        return null;
+    }
+
     private VerificationToken createVerificationToken(LocalUser user) {
         VerificationToken verificationToken = new VerificationToken();
         verificationToken.setToken(jwtService.generateVerificationJWT(user));
@@ -148,5 +159,11 @@ public class LocalUserService {
         verificationToken.setUser(user);
         user.getVerificationTokens().add(verificationToken);
         return verificationToken;
+    }
+
+    private String getUsernameFromToken(HttpServletRequest request) {
+        String tokenHeader = request.getHeader("Authorization");
+        String token = tokenHeader.substring(7);
+        return jwtService.getUsername(token);
     }
 }

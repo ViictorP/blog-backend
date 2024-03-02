@@ -12,7 +12,7 @@ public class UserBody {
 
     public UserBody(LocalUser user) {
         username = user.getUsername();
-        bio = user.getBio();
+        bio = user.getBiography();
         registrationDate = user.getRegistrationDate();
     }
 
