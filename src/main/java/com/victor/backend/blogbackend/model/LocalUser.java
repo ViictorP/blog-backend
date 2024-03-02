@@ -39,6 +39,7 @@ public class LocalUser {
     @Column(name = "registration_date", nullable = false)
     private LocalDateTime registrationDate;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     @OrderBy("id desc")
     private List<VerificationToken> verificationTokens = new ArrayList<>();

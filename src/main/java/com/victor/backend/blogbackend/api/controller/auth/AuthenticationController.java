@@ -1,15 +1,13 @@
 package com.victor.backend.blogbackend.api.controller.auth;
 
-import com.victor.backend.blogbackend.api.model.LoginBody;
-import com.victor.backend.blogbackend.api.model.LoginResponseBody;
-import com.victor.backend.blogbackend.api.model.PasswordResetBody;
-import com.victor.backend.blogbackend.api.model.RegistrationBody;
+import com.victor.backend.blogbackend.api.model.*;
 import com.victor.backend.blogbackend.exception.EmailFailureException;
 import com.victor.backend.blogbackend.exception.EmailNotFoundException;
 import com.victor.backend.blogbackend.exception.UserAlreadyExistsException;
 import com.victor.backend.blogbackend.exception.UserNotVerifiedException;
 import com.victor.backend.blogbackend.model.LocalUser;
 import com.victor.backend.blogbackend.service.LocalUserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -88,6 +86,15 @@ public class AuthenticationController {
     public ResponseEntity resetPassword(@Valid @RequestBody PasswordResetBody body) {
         localUserService.resetPassword(body);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/edit")
+    public ResponseEntity<ChangeUsernameResponseBody> editUsername(@Valid @RequestBody ChangeUsernameBody changeUsernameBody, HttpServletRequest request) {
+        ChangeUsernameResponseBody changeUsername = localUserService.editUsername(changeUsernameBody, request);
+        if (changeUsername != null) {
+            return ResponseEntity.ok(changeUsername);
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
     @GetMapping("/me")

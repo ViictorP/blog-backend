@@ -1,14 +1,13 @@
 package com.victor.backend.blogbackend.service;
 
-import com.victor.backend.blogbackend.api.model.LoginBody;
-import com.victor.backend.blogbackend.api.model.PasswordResetBody;
-import com.victor.backend.blogbackend.api.model.RegistrationBody;
-import com.victor.backend.blogbackend.api.model.UserBody;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.victor.backend.blogbackend.api.model.*;
 import com.victor.backend.blogbackend.exception.*;
 import com.victor.backend.blogbackend.model.LocalUser;
 import com.victor.backend.blogbackend.model.VerificationToken;
 import com.victor.backend.blogbackend.model.dao.LocalUserDAO;
 import com.victor.backend.blogbackend.model.dao.VerificationTokenDAO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -120,6 +119,26 @@ public class LocalUserService {
             user.setPassword(encryptionService.encryptPassword(body.getPassword()));
             localUserDAO.save(user);
         }
+    }
+
+    public ChangeUsernameResponseBody editUsername(ChangeUsernameBody changeUsernameBody, HttpServletRequest request) {
+        String tokenHeader = request.getHeader("Authorization");
+        String token = tokenHeader.substring(7);
+
+        String username = jwtService.getUsername(token);
+        Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
+        if (opUser.isPresent()) {
+            LocalUser user = opUser.get();
+
+            if (encryptionService.verifyPassword(changeUsernameBody.getPassword(), user.getPassword())) {
+
+                user.setUsername(changeUsernameBody.getNewUsername());
+                localUserDAO.save(user);
+                String jwt = jwtService.generateJWT(user);
+                return new ChangeUsernameResponseBody(jwt);
+            }
+        }
+        return null;
     }
 
     private VerificationToken createVerificationToken(LocalUser user) {
