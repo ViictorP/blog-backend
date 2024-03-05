@@ -7,5 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CommentDAO extends ListCrudRepository<Comment, Long> {
-    Optional<List<Comment>> findByAuthor_Username(String username);
+
+    Optional<List<Comment>> findByAuthor_UsernameOrderByTimeDesc(String username);
+
+
 }

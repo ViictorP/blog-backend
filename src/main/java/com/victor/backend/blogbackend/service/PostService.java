@@ -1,9 +1,12 @@
 package com.victor.backend.blogbackend.service;
 
+import com.victor.backend.blogbackend.api.model.EditPostBody;
 import com.victor.backend.blogbackend.api.model.PostBody;
 import com.victor.backend.blogbackend.api.model.PostResponseBody;
+import com.victor.backend.blogbackend.exception.PostNotFoundException;
 import com.victor.backend.blogbackend.exception.UserNotFoundException;
 import com.victor.backend.blogbackend.exception.UserDontHavePostYetException;
+import com.victor.backend.blogbackend.exception.UserPermissionDenied;
 import com.victor.backend.blogbackend.model.LocalUser;
 import com.victor.backend.blogbackend.model.Post;
 import com.victor.backend.blogbackend.model.dao.LocalUserDAO;
@@ -27,7 +30,7 @@ public class PostService {
     @Autowired
     private JWTService jwt;
 
-    public Post createPost(PostBody postBody, String token) throws UserNotFoundException {
+    public PostResponseBody createPost(PostBody postBody, String token) throws UserNotFoundException {
         String username = jwt.getUsername(token);
         Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
         if (opUser.isEmpty()) {
@@ -40,22 +43,72 @@ public class PostService {
         LocalUser user = opUser.get();
         post.setAuthor(user);
         post.setLikes(0);
+        post.setEdited(false);
         post.setTime(LocalDateTime.now());
-        return postDAO.save(post);
+        postDAO.save(post);
+        return new PostResponseBody(post);
     }
 
     public List<PostResponseBody> allPosts() {
-        List<Post> postList = postDAO.findAll();
+        List<Post> postList = postDAO.OrderByTimeDesc();
         return postList.stream().map(x -> new PostResponseBody(x)).toList();
     }
 
     public List<PostResponseBody> findUsersPosts(String username) throws UserDontHavePostYetException {
-        Optional<List<Post>> opPostList = postDAO.findByAuthor_Username(username);
+        Optional<List<Post>> opPostList = postDAO.findByAuthor_UsernameOrderByTimeDesc(username);
         if (opPostList.isEmpty()) {
             throw new UserDontHavePostYetException();
         }
 
         List<Post> posts = opPostList.get();
         return posts.stream().map(x -> new PostResponseBody(x)).toList();
+    }
+
+    public PostResponseBody editPost(EditPostBody editPostBody, String token, long postId) throws UserNotFoundException, PostNotFoundException, UserPermissionDenied {
+        String username = jwt.getUsername(token);
+        Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
+        if (opUser.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+        Optional<Post> opPost = postDAO.findById(postId);
+        if (opPost.isEmpty()) {
+            throw new PostNotFoundException();
+        }
+        LocalUser user = opUser.get();
+        Post post = opPost.get();
+
+        if (!user.equals(post.getAuthor())) {
+            throw new UserPermissionDenied();
+        }
+
+        if (editPostBody.getTitle() != null) {
+            post.setTitle(editPostBody.getTitle());
+        }
+        if (editPostBody.getContent() != null) {
+            post.setContent(editPostBody.getContent());
+        }
+        post.setEdited(true);
+        postDAO.save(post);
+        return new PostResponseBody(post);
+    }
+
+    public void deletePost(String token, long postId) throws UserNotFoundException, PostNotFoundException, UserPermissionDenied {
+        String username = jwt.getUsername(token);
+        Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
+        if (opUser.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+        Optional<Post> opPost = postDAO.findById(postId);
+        if (opPost.isEmpty()) {
+            throw new PostNotFoundException();
+        }
+        LocalUser user = opUser.get();
+        Post post = opPost.get();
+
+        if (!user.equals(post.getAuthor())) {
+            throw new UserPermissionDenied();
+        }
+
+        postDAO.delete(post);
     }
 }

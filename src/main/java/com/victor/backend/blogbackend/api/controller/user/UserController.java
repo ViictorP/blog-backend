@@ -1,21 +1,18 @@
 package com.victor.backend.blogbackend.api.controller.user;
 
-import com.victor.backend.blogbackend.api.model.CommentResponseBody;
-import com.victor.backend.blogbackend.api.model.PostResponseBody;
-import com.victor.backend.blogbackend.api.model.UserBody;
+import com.victor.backend.blogbackend.api.model.*;
 import com.victor.backend.blogbackend.exception.UserNotFoundException;
 import com.victor.backend.blogbackend.exception.UserDontHaveCommentYetException;
 import com.victor.backend.blogbackend.exception.UserDontHavePostYetException;
 import com.victor.backend.blogbackend.service.CommentService;
 import com.victor.backend.blogbackend.service.LocalUserService;
 import com.victor.backend.blogbackend.service.PostService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -59,5 +56,20 @@ public class UserController {
         } catch (UserDontHaveCommentYetException e) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
+    }
+
+    @PostMapping("/edit/username")
+    public ResponseEntity<ChangeUsernameResponseBody> editUsername(@Valid @RequestBody ChangeUsernameBody changeUsernameBody, HttpServletRequest request) {
+        ChangeUsernameResponseBody changeUsername = localUserService.editUsername(changeUsernameBody, request);
+        if (changeUsername != null) {
+            return ResponseEntity.ok(changeUsername);
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @PostMapping("/edit/biography")
+    public ResponseEntity<BiographyBody> editBio(@Valid @RequestBody BiographyBody bio, HttpServletRequest request) {
+        BiographyBody biographyBody = localUserService.editBio(bio, request);
+        return ResponseEntity.ok(biographyBody);
     }
 }

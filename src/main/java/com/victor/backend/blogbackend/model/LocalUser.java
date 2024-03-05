@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "local_user")
@@ -127,4 +128,16 @@ public class LocalUser {
         this.id = id;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LocalUser user = (LocalUser) o;
+        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(email, user.email) && Objects.equals(posts, user.posts) && Objects.equals(comments, user.comments) && Objects.equals(biography, user.biography) && Objects.equals(registrationDate, user.registrationDate) && Objects.equals(verificationTokens, user.verificationTokens) && Objects.equals(emailVerified, user.emailVerified);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, password, email, posts, comments, biography, registrationDate, verificationTokens, emailVerified);
+    }
 }

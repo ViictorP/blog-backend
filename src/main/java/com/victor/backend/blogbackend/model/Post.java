@@ -41,6 +41,17 @@ public class Post {
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
+    @Column(name = "edited")
+    private Boolean edited;
+
+    public Boolean getEdited() {
+        return edited;
+    }
+
+    public void setEdited(Boolean edited) {
+        this.edited = edited;
+    }
+
     public List<Comment> getComments() {
         return comments;
     }

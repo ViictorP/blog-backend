@@ -2,9 +2,12 @@ package com.victor.backend.blogbackend.service;
 
 import com.victor.backend.blogbackend.api.model.CommentBody;
 import com.victor.backend.blogbackend.api.model.CommentResponseBody;
+import com.victor.backend.blogbackend.api.model.EditCommentBody;
+import com.victor.backend.blogbackend.api.model.PostResponseBody;
 import com.victor.backend.blogbackend.exception.PostNotFoundException;
 import com.victor.backend.blogbackend.exception.UserNotFoundException;
 import com.victor.backend.blogbackend.exception.UserDontHaveCommentYetException;
+import com.victor.backend.blogbackend.exception.UserPermissionDenied;
 import com.victor.backend.blogbackend.model.Comment;
 import com.victor.backend.blogbackend.model.LocalUser;
 import com.victor.backend.blogbackend.model.Post;
@@ -53,6 +56,7 @@ public class CommentService {
         comment.setContent(commentBody.getContent());
         comment.setTime(LocalDateTime.now());
         comment.setLikes(0);
+        comment.setEdited(false);
         return new CommentResponseBody(commentDAO.save(comment));
     }
 
@@ -62,12 +66,57 @@ public class CommentService {
     }
 
     public List<CommentResponseBody> findUsersComments(String username) throws UserDontHaveCommentYetException {
-        Optional<List<Comment>> opCommentList = commentDAO.findByAuthor_Username(username);
+        Optional<List<Comment>> opCommentList = commentDAO.findByAuthor_UsernameOrderByTimeDesc(username);
         if (opCommentList.isEmpty()) {
             throw new UserDontHaveCommentYetException();
         }
 
         List<Comment> posts = opCommentList.get();
         return posts.stream().map(x -> new CommentResponseBody(x)).toList();
+    }
+
+    public CommentResponseBody editComment(EditCommentBody editCommentBody, String token, long commentId) throws UserNotFoundException, PostNotFoundException, UserPermissionDenied {
+        String username = jwt.getUsername(token);
+        Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
+        if (opUser.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+        Optional<Comment> opComment = commentDAO.findById(commentId);
+        if (opComment.isEmpty()) {
+            throw new PostNotFoundException();
+        }
+        LocalUser user = opUser.get();
+        Comment comment = opComment.get();
+
+        if (!user.equals(comment.getAuthor())) {
+            throw new UserPermissionDenied();
+        }
+
+        if (editCommentBody.getContent() != null) {
+            comment.setContent(editCommentBody.getContent());
+        }
+        comment.setEdited(true);
+        commentDAO.save(comment);
+        return new CommentResponseBody(comment);
+    }
+
+    public void deleteComment(String token, long commentId) throws UserNotFoundException, PostNotFoundException, UserPermissionDenied {
+        String username = jwt.getUsername(token);
+        Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
+        if (opUser.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+        Optional<Comment> opComment = commentDAO.findById(commentId);
+        if (opComment.isEmpty()) {
+            throw new PostNotFoundException();
+        }
+        LocalUser user = opUser.get();
+        Comment comment = opComment.get();
+
+        if (!user.equals(comment.getAuthor())) {
+            throw new UserPermissionDenied();
+        }
+
+        commentDAO.delete(comment);
     }
 }

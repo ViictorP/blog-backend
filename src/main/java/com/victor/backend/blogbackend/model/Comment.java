@@ -29,6 +29,17 @@ public class Comment {
     @JoinColumn(name = "author_id")
     private LocalUser author;
 
+    @Column(name = "edited")
+    private Boolean edited;
+
+    public Boolean getEdited() {
+        return edited;
+    }
+
+    public void setEdited(Boolean edited) {
+        this.edited = edited;
+    }
+
     public LocalUser getAuthor() {
         return author;
     }

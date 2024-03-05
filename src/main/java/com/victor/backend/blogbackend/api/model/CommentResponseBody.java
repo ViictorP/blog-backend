@@ -12,8 +12,7 @@ public class CommentResponseBody {
     private LocalDateTime time;
     private String author;
 
-    public CommentResponseBody() {
-    }
+    private boolean edited;
 
     public CommentResponseBody(Comment comment) {
         id = comment.getId();
@@ -21,6 +20,18 @@ public class CommentResponseBody {
         likes = comment.getLikes();
         time = comment.getTime();
         author = comment.getAuthor().getUsername();
+        edited = comment.getEdited();
+    }
+
+    public boolean isEdited() {
+        return edited;
+    }
+
+    public void setEdited(boolean edited) {
+        this.edited = edited;
+    }
+
+    public CommentResponseBody() {
     }
 
     public Long getId() {

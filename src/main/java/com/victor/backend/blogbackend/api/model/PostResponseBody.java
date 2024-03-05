@@ -12,6 +12,15 @@ public class PostResponseBody {
     private int likes;
     private String author;
     private LocalDateTime time;
+    private boolean edited;
+
+    public boolean isEdited() {
+        return edited;
+    }
+
+    public void setEdited(boolean edited) {
+        this.edited = edited;
+    }
 
     public PostResponseBody(Post post) {
         id = post.getId();
@@ -20,6 +29,7 @@ public class PostResponseBody {
         likes = post.getLikes();
         author = post.getAuthor().getUsername();
         time = post.getTime();
+        edited = post.getEdited();
     }
 
     public Long getId() {
