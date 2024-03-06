@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "post")
@@ -27,9 +27,6 @@ public class Post {
     @Column(name = "content", nullable = false, length = 5000)
     private String content;
 
-    @Column(name = "likes", nullable = false)
-    private int likes;
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "locar_user_id", nullable = false)
     private LocalUser author;
@@ -43,6 +40,20 @@ public class Post {
 
     @Column(name = "edited")
     private Boolean edited;
+
+    @ManyToMany
+    @JoinTable(name = "post_likes",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "local_user_id"))
+    private Set<LocalUser> postLikes = new LinkedHashSet<>();
+
+    public Set<LocalUser> getPostLikes() {
+        return postLikes;
+    }
+
+    public void setPostLikes(Set<LocalUser> postLikes) {
+        this.postLikes = postLikes;
+    }
 
     public Boolean getEdited() {
         return edited;
@@ -76,14 +87,6 @@ public class Post {
         this.author = author;
     }
 
-    public int getLikes() {
-        return likes;
-    }
-
-    public void setLikes(int likes) {
-        this.likes = likes;
-    }
-
     public String getContent() {
         return content;
     }
@@ -108,4 +111,19 @@ public class Post {
         this.id = id;
     }
 
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Post post = (Post) o;
+        return getId() != null && Objects.equals(getId(), post.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
 }

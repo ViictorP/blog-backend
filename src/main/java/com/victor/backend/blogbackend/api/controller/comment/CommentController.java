@@ -78,4 +78,20 @@ public class CommentController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
+    @PostMapping("/like")
+    public ResponseEntity<LikeResponseBody> likeComment(@RequestParam long commentId, HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            authorizationHeader = authorizationHeader.substring(7);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        try {
+            LikeResponseBody like = commentService.likeComment(authorizationHeader, commentId);
+            return ResponseEntity.ok(like);
+        } catch (UserNotFoundException | PostNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

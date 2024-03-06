@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "local_user")
@@ -47,6 +45,28 @@ public class LocalUser {
 
     @Column(name = "email_verified", nullable = false)
     private Boolean emailVerified = false;
+
+    @ManyToMany(mappedBy = "postLikes")
+    private Set<Post> userPostsLikes = new LinkedHashSet<>();
+
+    @ManyToMany(mappedBy = "commentLikes")
+    private Set<Comment> commentUserLikes = new LinkedHashSet<>();
+
+    public Set<Comment> getCommentUserLikes() {
+        return commentUserLikes;
+    }
+
+    public void setCommentUserLikes(Set<Comment> commentUserLikes) {
+        this.commentUserLikes = commentUserLikes;
+    }
+
+    public Set<Post> getUserPostsLikes() {
+        return userPostsLikes;
+    }
+
+    public void setUserPostsLikes(Set<Post> userPostsLikes) {
+        this.userPostsLikes = userPostsLikes;
+    }
 
     public Boolean isEmailVerified() {
         return emailVerified;

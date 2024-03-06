@@ -1,9 +1,6 @@
 package com.victor.backend.blogbackend.service;
 
-import com.victor.backend.blogbackend.api.model.CommentBody;
-import com.victor.backend.blogbackend.api.model.CommentResponseBody;
-import com.victor.backend.blogbackend.api.model.EditCommentBody;
-import com.victor.backend.blogbackend.api.model.PostResponseBody;
+import com.victor.backend.blogbackend.api.model.*;
 import com.victor.backend.blogbackend.exception.PostNotFoundException;
 import com.victor.backend.blogbackend.exception.UserNotFoundException;
 import com.victor.backend.blogbackend.exception.UserDontHaveCommentYetException;
@@ -55,7 +52,6 @@ public class CommentService {
         comment.setPost(post);
         comment.setContent(commentBody.getContent());
         comment.setTime(LocalDateTime.now());
-        comment.setLikes(0);
         comment.setEdited(false);
         return new CommentResponseBody(commentDAO.save(comment));
     }
@@ -118,5 +114,27 @@ public class CommentService {
         }
 
         commentDAO.delete(comment);
+    }
+
+    public LikeResponseBody likeComment(String token, long commentId) throws UserNotFoundException, PostNotFoundException {
+        String username = jwt.getUsername(token);
+        Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
+        if (opUser.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+        Optional<Comment> opComment = commentDAO.findById(commentId);
+        if (opComment.isEmpty()) {
+            throw new PostNotFoundException();
+        }
+        LocalUser user = opUser.get();
+        Comment comment = opComment.get();
+
+        comment.getCommentLikes().stream().filter(authorLike -> authorLike.equals(user)).findFirst().ifPresentOrElse(
+                foundLike -> comment.getCommentLikes().remove(foundLike),
+                () -> comment.getCommentLikes().add(user)
+        );
+
+        commentDAO.save(comment);
+        return new LikeResponseBody(comment.getCommentLikes().size());
     }
 }

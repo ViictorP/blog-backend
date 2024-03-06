@@ -9,10 +9,28 @@ public class PostResponseBody {
     private Long id;
     private String title;
     private String content;
-    private int likes;
     private String author;
     private LocalDateTime time;
+    private long likes;
     private boolean edited;
+
+    public PostResponseBody(Post post) {
+        id = post.getId();
+        title = post.getTitle();
+        content = post.getContent();
+        author = post.getAuthor().getUsername();
+        time = post.getTime();
+        likes = post.getPostLikes().size();
+        edited = post.getEdited();
+    }
+
+    public long getLikes() {
+        return likes;
+    }
+
+    public void setLikes(long likes) {
+        this.likes = likes;
+    }
 
     public boolean isEdited() {
         return edited;
@@ -20,16 +38,6 @@ public class PostResponseBody {
 
     public void setEdited(boolean edited) {
         this.edited = edited;
-    }
-
-    public PostResponseBody(Post post) {
-        id = post.getId();
-        title = post.getTitle();
-        content = post.getContent();
-        likes = post.getLikes();
-        author = post.getAuthor().getUsername();
-        time = post.getTime();
-        edited = post.getEdited();
     }
 
     public Long getId() {
@@ -57,14 +65,6 @@ public class PostResponseBody {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public int getLikes() {
-        return likes;
-    }
-
-    public void setLikes(int likes) {
-        this.likes = likes;
     }
 
     public String getAuthor() {

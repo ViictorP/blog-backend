@@ -1,6 +1,5 @@
 package com.victor.backend.blogbackend.service;
 
-import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.victor.backend.blogbackend.api.model.*;
 import com.victor.backend.blogbackend.exception.*;
 import com.victor.backend.blogbackend.model.LocalUser;
@@ -49,7 +48,9 @@ public class LocalUserService {
         VerificationToken verificationToken = createVerificationToken(user);
         emailService.sendVerificationEmail(verificationToken);
         user.setRegistrationDate(LocalDateTime.now());
-        return localUserDAO.save(user);
+        localUserDAO.save(user);
+        verificationTokenDAO.save(verificationToken);
+        return user;
     }
 
     public String loginUser(LoginBody loginBody) throws UserNotVerifiedException, EmailFailureException {

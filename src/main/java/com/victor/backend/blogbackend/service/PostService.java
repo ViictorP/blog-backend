@@ -1,6 +1,7 @@
 package com.victor.backend.blogbackend.service;
 
 import com.victor.backend.blogbackend.api.model.EditPostBody;
+import com.victor.backend.blogbackend.api.model.LikeResponseBody;
 import com.victor.backend.blogbackend.api.model.PostBody;
 import com.victor.backend.blogbackend.api.model.PostResponseBody;
 import com.victor.backend.blogbackend.exception.PostNotFoundException;
@@ -42,7 +43,6 @@ public class PostService {
         post.setContent(postBody.getContent());
         LocalUser user = opUser.get();
         post.setAuthor(user);
-        post.setLikes(0);
         post.setEdited(false);
         post.setTime(LocalDateTime.now());
         postDAO.save(post);
@@ -110,5 +110,27 @@ public class PostService {
         }
 
         postDAO.delete(post);
+    }
+
+    public LikeResponseBody likePost(String token, long postId) throws UserNotFoundException, PostNotFoundException {
+        String username = jwt.getUsername(token);
+        Optional<LocalUser> opUser = localUserDAO.findByUsernameIgnoreCase(username);
+        if (opUser.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+        Optional<Post> opPost = postDAO.findById(postId);
+        if (opPost.isEmpty()) {
+            throw new PostNotFoundException();
+        }
+        LocalUser user = opUser.get();
+        Post post = opPost.get();
+
+        post.getPostLikes().stream().filter(authorLike -> authorLike.equals(user)).findFirst().ifPresentOrElse(
+                foundLike -> post.getPostLikes().remove(foundLike),
+                () -> post.getPostLikes().add(user)
+        );
+
+        postDAO.save(post);
+        return new LikeResponseBody(post.getPostLikes().size());
     }
 }

@@ -1,6 +1,7 @@
 package com.victor.backend.blogbackend.api.controller.post;
 
 import com.victor.backend.blogbackend.api.model.EditPostBody;
+import com.victor.backend.blogbackend.api.model.LikeResponseBody;
 import com.victor.backend.blogbackend.api.model.PostBody;
 import com.victor.backend.blogbackend.api.model.PostResponseBody;
 import com.victor.backend.blogbackend.exception.PostNotFoundException;
@@ -72,6 +73,22 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } catch (UserPermissionDenied ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @PostMapping("/like")
+    public ResponseEntity<LikeResponseBody> likePost(@RequestParam long postId, HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            authorizationHeader = authorizationHeader.substring(7);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        try {
+            LikeResponseBody like = postService.likePost(authorizationHeader, postId);
+            return ResponseEntity.ok(like);
+        } catch (UserNotFoundException | PostNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

@@ -8,19 +8,26 @@ public class CommentResponseBody {
 
     private Long id;
     private String content;
-    private int likes;
     private LocalDateTime time;
     private String author;
-
+    private long likes;
     private boolean edited;
 
     public CommentResponseBody(Comment comment) {
         id = comment.getId();
         content = comment.getContent();
-        likes = comment.getLikes();
         time = comment.getTime();
         author = comment.getAuthor().getUsername();
+        likes = comment.getCommentLikes().size();
         edited = comment.getEdited();
+    }
+
+    public long getLikes() {
+        return likes;
+    }
+
+    public void setLikes(long likes) {
+        this.likes = likes;
     }
 
     public boolean isEdited() {
@@ -48,14 +55,6 @@ public class CommentResponseBody {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public int getLikes() {
-        return likes;
-    }
-
-    public void setLikes(int likes) {
-        this.likes = likes;
     }
 
     public LocalDateTime getTime() {

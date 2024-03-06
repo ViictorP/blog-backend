@@ -3,6 +3,8 @@ package com.victor.backend.blogbackend.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "comment")
@@ -14,9 +16,6 @@ public class Comment {
 
     @Column(name = "content", nullable = false, length = 5000)
     private String content;
-
-    @Column(name = "likes", nullable = false)
-    private int likes;
 
     @Column(name = "time", nullable = false)
     private LocalDateTime time;
@@ -31,6 +30,20 @@ public class Comment {
 
     @Column(name = "edited")
     private Boolean edited;
+
+    @ManyToMany
+    @JoinTable(name = "comment_likes",
+            joinColumns = @JoinColumn(name = "comment_id"),
+            inverseJoinColumns = @JoinColumn(name = "localUsers_id"))
+    private Set<LocalUser> commentLikes = new LinkedHashSet<>();
+
+    public Set<LocalUser> getCommentLikes() {
+        return commentLikes;
+    }
+
+    public void setCommentLikes(Set<LocalUser> commentLikes) {
+        this.commentLikes = commentLikes;
+    }
 
     public Boolean getEdited() {
         return edited;
@@ -62,14 +75,6 @@ public class Comment {
 
     public void setTime(LocalDateTime time) {
         this.time = time;
-    }
-
-    public int getLikes() {
-        return likes;
-    }
-
-    public void setLikes(int likes) {
-        this.likes = likes;
     }
 
     public String getContent() {
