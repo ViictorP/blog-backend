@@ -1,7 +1,7 @@
 
 # blog-backend
 
-Blog-backend é uma aplicação desenvolvida utilizando Spring boot framework. Esse projeto foi feito com o objetivo aprofundar meu conhecimento em spring api, spring security, Hibernate e MySql. Essa aplicação JWT token como forma de autenticação e permite que usuarios se registrem, façam posts, comentem em posts de outros usuarios, dê like nos posts e comentatios que gostar, entre outras coisas.
+Blog-backend é uma aplicação desenvolvida utilizando Spring boot framework. Esse projeto foi feito com o objetivo aprofundar meu conhecimento em spring api, spring security, Hibernate e MySql. Essa aplicação utiliza JWT token como forma de autenticação e permite que usuarios se registrem, façam posts, comentem em posts de outros usuarios, dê like nos posts e comentatios que gostar, entre outras coisas.
 ## Features
 
 - Registro e Login de usuários.
