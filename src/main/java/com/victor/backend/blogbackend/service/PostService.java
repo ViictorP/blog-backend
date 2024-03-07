@@ -4,10 +4,7 @@ import com.victor.backend.blogbackend.api.model.EditPostBody;
 import com.victor.backend.blogbackend.api.model.LikeResponseBody;
 import com.victor.backend.blogbackend.api.model.PostBody;
 import com.victor.backend.blogbackend.api.model.PostResponseBody;
-import com.victor.backend.blogbackend.exception.PostNotFoundException;
-import com.victor.backend.blogbackend.exception.UserNotFoundException;
-import com.victor.backend.blogbackend.exception.UserDontHavePostYetException;
-import com.victor.backend.blogbackend.exception.UserPermissionDenied;
+import com.victor.backend.blogbackend.exception.*;
 import com.victor.backend.blogbackend.model.LocalUser;
 import com.victor.backend.blogbackend.model.Post;
 import com.victor.backend.blogbackend.model.dao.LocalUserDAO;
@@ -132,5 +129,14 @@ public class PostService {
 
         postDAO.save(post);
         return new LikeResponseBody(post.getPostLikes().size());
+    }
+
+    public List<PostResponseBody> findUsersLikedPosts(String username) throws UserDontHaveLikedPostsException {
+        Optional<List<Post>> postLikedList = postDAO.findByPostLikes_UsernameOrderByTimeDesc(username);
+        if (postLikedList.isEmpty()) {
+            throw new UserDontHaveLikedPostsException();
+        }
+        List<Post> likedPosts = postLikedList.get();
+        return likedPosts.stream().map(x -> new PostResponseBody(x)).toList();
     }
 }

@@ -1,8 +1,5 @@
 package com.victor.backend.blogbackend.api.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
 public class EditPostBody {
 
     private String title;

@@ -1,9 +1,7 @@
 package com.victor.backend.blogbackend.api.controller.user;
 
 import com.victor.backend.blogbackend.api.model.*;
-import com.victor.backend.blogbackend.exception.UserNotFoundException;
-import com.victor.backend.blogbackend.exception.UserDontHaveCommentYetException;
-import com.victor.backend.blogbackend.exception.UserDontHavePostYetException;
+import com.victor.backend.blogbackend.exception.*;
 import com.victor.backend.blogbackend.service.CommentService;
 import com.victor.backend.blogbackend.service.LocalUserService;
 import com.victor.backend.blogbackend.service.PostService;
@@ -71,5 +69,25 @@ public class UserController {
     public ResponseEntity<BiographyBody> editBio(@Valid @RequestBody BiographyBody bio, HttpServletRequest request) {
         BiographyBody biographyBody = localUserService.editBio(bio, request);
         return ResponseEntity.ok(biographyBody);
+    }
+
+    @GetMapping("/liked/posts")
+    public ResponseEntity<List<PostResponseBody>> findUsersLikedPosts(@RequestParam String username) {
+        try {
+            List<PostResponseBody> postList = postService.findUsersLikedPosts(username);
+            return ResponseEntity.ok(postList);
+        } catch (UserDontHaveLikedPostsException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+    }
+
+    @GetMapping("/liked/comments")
+    public ResponseEntity<List<CommentResponseBody>> findUsersLikedComments(@RequestParam String username) {
+        try {
+            List<CommentResponseBody> commentList = commentService.findUsersLikedComments(username);
+            return ResponseEntity.ok(commentList);
+        } catch (UserDontHaveLikedCommentException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
     }
 }

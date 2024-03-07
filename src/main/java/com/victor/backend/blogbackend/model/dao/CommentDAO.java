@@ -10,5 +10,6 @@ public interface CommentDAO extends ListCrudRepository<Comment, Long> {
 
     Optional<List<Comment>> findByAuthor_UsernameOrderByTimeDesc(String username);
 
+    Optional<List<Comment>> findByCommentLikes_UsernameOrderByTimeDesc(String username);
 
 }

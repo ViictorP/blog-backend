@@ -46,9 +46,11 @@ public class LocalUser {
     @Column(name = "email_verified", nullable = false)
     private Boolean emailVerified = false;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "postLikes")
     private Set<Post> userPostsLikes = new LinkedHashSet<>();
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "commentLikes")
     private Set<Comment> commentUserLikes = new LinkedHashSet<>();
 

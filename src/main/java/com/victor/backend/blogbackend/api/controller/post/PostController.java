@@ -40,8 +40,8 @@ public class PostController {
         }
     }
 
-    @PostMapping("/edit/{postId}")
-    public ResponseEntity<PostResponseBody> editPost(@RequestBody EditPostBody editPostBody, HttpServletRequest request, @PathVariable long postId) {
+    @PostMapping("/edit")
+    public ResponseEntity<PostResponseBody> editPost(@RequestBody EditPostBody editPostBody, HttpServletRequest request, @RequestParam long postId) {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             authorizationHeader = authorizationHeader.substring(7);
@@ -58,8 +58,8 @@ public class PostController {
         }
     }
 
-    @PostMapping("/delete/{postId}")
-    public ResponseEntity deletePost(HttpServletRequest request, @PathVariable long postId) {
+    @PostMapping("/delete")
+    public ResponseEntity deletePost(HttpServletRequest request, @RequestParam long postId) {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             authorizationHeader = authorizationHeader.substring(7);

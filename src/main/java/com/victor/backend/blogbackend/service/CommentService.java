@@ -1,10 +1,10 @@
 package com.victor.backend.blogbackend.service;
 
-import com.victor.backend.blogbackend.api.model.*;
-import com.victor.backend.blogbackend.exception.PostNotFoundException;
-import com.victor.backend.blogbackend.exception.UserNotFoundException;
-import com.victor.backend.blogbackend.exception.UserDontHaveCommentYetException;
-import com.victor.backend.blogbackend.exception.UserPermissionDenied;
+import com.victor.backend.blogbackend.api.model.CommentBody;
+import com.victor.backend.blogbackend.api.model.CommentResponseBody;
+import com.victor.backend.blogbackend.api.model.EditCommentBody;
+import com.victor.backend.blogbackend.api.model.LikeResponseBody;
+import com.victor.backend.blogbackend.exception.*;
 import com.victor.backend.blogbackend.model.Comment;
 import com.victor.backend.blogbackend.model.LocalUser;
 import com.victor.backend.blogbackend.model.Post;
@@ -136,5 +136,14 @@ public class CommentService {
 
         commentDAO.save(comment);
         return new LikeResponseBody(comment.getCommentLikes().size());
+    }
+
+    public List<CommentResponseBody> findUsersLikedComments(String username) throws UserDontHaveLikedCommentException {
+        Optional<List<Comment>> commentLikedList = commentDAO.findByCommentLikes_UsernameOrderByTimeDesc(username);
+        if (commentLikedList.isEmpty()) {
+            throw new UserDontHaveLikedCommentException();
+        }
+        List<Comment> likedPosts = commentLikedList.get();
+        return likedPosts.stream().map(x -> new CommentResponseBody(x)).toList();
     }
 }

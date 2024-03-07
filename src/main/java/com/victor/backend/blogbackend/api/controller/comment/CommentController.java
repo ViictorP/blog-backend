@@ -1,6 +1,9 @@
 package com.victor.backend.blogbackend.api.controller.comment;
 
-import com.victor.backend.blogbackend.api.model.*;
+import com.victor.backend.blogbackend.api.model.CommentBody;
+import com.victor.backend.blogbackend.api.model.CommentResponseBody;
+import com.victor.backend.blogbackend.api.model.EditCommentBody;
+import com.victor.backend.blogbackend.api.model.LikeResponseBody;
 import com.victor.backend.blogbackend.exception.PostNotFoundException;
 import com.victor.backend.blogbackend.exception.UserNotFoundException;
 import com.victor.backend.blogbackend.exception.UserPermissionDenied;
@@ -21,8 +24,8 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
-    @PostMapping("/make/{postId}")
-    public ResponseEntity<CommentResponseBody> makeComment(@Valid @RequestBody CommentBody commentBody, @PathVariable int postId, HttpServletRequest request) {
+    @PostMapping("/make")
+    public ResponseEntity<CommentResponseBody> makeComment(@Valid @RequestBody CommentBody commentBody, @RequestParam int postId, HttpServletRequest request) {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             authorizationHeader = authorizationHeader.substring(7);
@@ -38,13 +41,13 @@ public class CommentController {
         }
     }
 
-    @GetMapping("/show/{postId}")
-    public List<CommentResponseBody> postComments(@PathVariable int postId) {
+    @GetMapping("/show")
+    public List<CommentResponseBody> postComments(@RequestParam int postId) {
         return commentService.postComments(postId);
     }
 
-    @PostMapping("/edit/{commentId}")
-    public ResponseEntity<CommentResponseBody> editComment(@RequestBody EditCommentBody editCommentBody, HttpServletRequest request, @PathVariable long commentId) {
+    @PostMapping("/edit")
+    public ResponseEntity<CommentResponseBody> editComment(@RequestBody EditCommentBody editCommentBody, HttpServletRequest request, @RequestParam long commentId) {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             authorizationHeader = authorizationHeader.substring(7);
@@ -61,8 +64,8 @@ public class CommentController {
         }
     }
 
-    @PostMapping("/delete/{commentId}")
-    public ResponseEntity deleteComment(HttpServletRequest request, @PathVariable long commentId) {
+    @PostMapping("/delete")
+    public ResponseEntity deleteComment(HttpServletRequest request, @RequestParam long commentId) {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             authorizationHeader = authorizationHeader.substring(7);
